@@ -23,13 +23,17 @@ def run_regression_example():
     print(forecast_out)
 
     df['label'] = df[forecast_col].shift(-forecast_out)
-    df.dropna(inplace=True)
-    # print(df.head())
     x = np.array(df.drop(['label'], 1))
+    x = x[:-forecast_out]
+    x_lately = x[-forecast_out:]
+    df.dropna(inplace=True)
     y = np.array(df['label'])
 
-    reg.mll_LinearRegression(x, y)
-    reg.mll_SVM_SVR(x, y)
+    linreg = reg.Regression("linear")
+    linreg.train(x, y)
+
+    svr = reg.Regression("SVR")
+    svr.train(x,y)
 
 
 run_regression_example()
