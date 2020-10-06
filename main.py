@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 
 from MachineLearningProsseses import regression as reg
+from MachineLearningRecreateProsseses import rec_regression as recreg
 
 pd.set_option('display.max_columns', None)
 style.use("ggplot")
@@ -42,9 +43,14 @@ def run_regression_example():
     df.dropna(inplace=True)
     y = np.array(df['label'])
 
-
     linreg = reg.Regression("linear")
+    # ------------------------------------------------ #
+    # If these lines not commented: Train CLF and Export the trained CLF to file
     linreg_acc = linreg.train(x, y)
+    linreg.io_clf("data/clf/linreg", import_clf=False)  # Change the path to an existing to work
+    # ------------------------------------------------ #
+    # linreg.io_clf("data/clf/linreg.clf", import_clf=True)  # Comment lines above and uncomment this (import clf)
+    # ------------------------------------------------ #
     linreg_predic = linreg.predict(x_lately)
     print(linreg_predic, "%0.3f" % linreg_acc, forecast_out)
     df['Forecast_LinReg'] = np.nan
@@ -68,4 +74,7 @@ def run_regression_example():
     plt.show()
 
 
-run_regression_example()
+# run_regression_example()
+
+bfs = recreg.RecRegression()
+bfs.LinearRegression()
