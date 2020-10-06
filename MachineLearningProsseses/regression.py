@@ -5,23 +5,19 @@ from sklearn import svm
 from sklearn.linear_model import LinearRegression
 
 
-def mll_LinearRegression(input, output):
-    x = preprocessing.scale(input)
-    y = output
-
+def mll_LinearRegression(x, y):
+    x = preprocessing.scale(x)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, )
-    clf = LinearRegression()
+    clf = LinearRegression(n_jobs=-1)
     clf.fit(x_train, y_train)
     acc = clf.score(x_test, y_test)
-    print("%0.3f" % acc)
+    print("LinearRegression_acc = %0.3f" % acc)
 
 
-def mll_SVM_SVR(input, output):
-    x = preprocessing.scale(input)
-    y = output
-
+def mll_SVM_SVR(x, y):
+    x = preprocessing.scale(x)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, )
     clf = svm.SVR()
     clf.fit(x_train, y_train)
     acc = clf.score(x_test, y_test)
-    print("%0.3f" % acc)
+    print("SVM_SVR_acc = %0.3f" % acc)

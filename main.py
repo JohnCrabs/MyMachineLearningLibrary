@@ -19,7 +19,7 @@ def run_regression_example():
     forecast_col = 'Close'
     df.fillna(-99999, inplace=True)
 
-    forecast_out = int(math.ceil(0.01 * len(df)))
+    forecast_out = int(math.ceil(0.003 * len(df)))
     print(forecast_out)
 
     df['label'] = df[forecast_col].shift(-forecast_out)
