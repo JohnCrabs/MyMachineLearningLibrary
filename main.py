@@ -5,9 +5,13 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 from matplotlib import style
+import random
 
 from MachineLearningProsseses import regression as reg
-from MachineLearningRecreateProsseses import rec_regression as recreg
+from MachineLearningProsseses import classification as classif
+
+# from MachineLearningRecreateProsseses import rec_regression as recreg
+from MachineLearningRecreateProsseses import rec_classification as recclassif
 
 pd.set_option('display.max_columns', None)
 style.use("ggplot")
@@ -74,7 +78,68 @@ def run_regression_example():
     plt.show()
 
 
-run_regression_example()
+def run_classification_example():
+    df = pd.read_csv('./Data/BreastCancerClassificationData/breast-cancer-wisconsin.data')
+    df.replace('?', -99999, inplace=True)
+    df.drop(['id'], axis=1, inplace=True)
 
+    x = np.array(df.drop(['class'], 1))
+    y = np.array(df['class'])
+
+    knn = classif.Classification('knn')
+    # ------------------------------------------------ #
+    # If these lines not commented: Train CLF and Export the trained CLF to file
+    knn_acc = knn.train(x, y)
+    knn.io_clf("Data/clf/knn", import_clf=False)  # Change the path to an existing to work
+    # ------------------------------------------------ #
+    # knn.io_clf("Data/clf/knn.clf", import_clf=True)  # Comment lines above and uncomment this (import clf)
+    # ------------------------------------------------ #
+    # linreg_predic = knn.predict()
+    print("Scikit-Learn Accuracy = %0.3f" % knn_acc)
+    # example_measures = np.array([[4, 2, 1, 1, 1, 2, 3, 2, 1], [4, 2, 1, 2, 2, 2, 3, 2, 1]])
+    # example_measures = example_measures.reshape(len(example_measures), -1)
+    # example_prediction = knn.predict(example_measures)
+    # print(example_prediction)
+
+    # Test the knn using my written algorithm
+    def train_test_split(xs, ys, test_size=0.2):
+        """
+        This function needs to be changed according to the dataset, because it heavilly depends on the classes.
+        The custom classification algorithm uses dictionary for classification and so the data needs to be edited
+        appropriately.
+        :param xs: The input array.
+        :param ys: The output array (indexes of classes).
+        :param test_size: The percentage of the dataset size that will be use for testing purposes.
+        :return:
+        """
+        xs = xs.astype(float).tolist()
+        ys = ys.astype(float).tolist()
+        full_data = xs
+        for i in range(len(full_data)):
+            full_data[i].append(ys[i])
+        random.shuffle(full_data)
+
+        train_set = {2: [], 4: []}
+        test_set = {2: [], 4: []}
+        d_train = full_data[:-int(test_size * len(full_data))]
+        d_test = full_data[-int(test_size * len(full_data)):]
+
+        for i in d_train:
+            train_set[i[-1]].append(i[:-1])
+        for i in d_test:
+            test_set[i[-1]].append(i[:-1])
+        return train_set, test_set
+
+    bfs = recclassif.RecClassification()
+    train_data, test_data = train_test_split(x, y, test_size=0.2)
+
+    custom_knn_acc = bfs.knn(train_data, test_data)
+    print("Custom KNN Accuracy = %0.3f" % custom_knn_acc)
+
+# Use scikit-learn algorithms
+# run_regression_example()
+run_classification_example()
+
+# Use my algorithms
 # bfs = recreg.RecRegression()
 # bfs.LinearRegression()
