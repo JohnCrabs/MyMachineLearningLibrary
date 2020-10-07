@@ -78,7 +78,7 @@ def run_regression_example():
     plt.show()
 
 
-def run_classification_example():
+def run_classification_example_knn():
     run_tests = 25
 
     df = pd.read_csv('./Data/BreastCancerClassificationData/breast-cancer-wisconsin.data')
@@ -153,9 +153,41 @@ def run_classification_example():
     print("Custom KNN Confidence = %0.3f" % custom_knn_conf)
 
 
+def run_classification_example_SVM_SVC():
+    run_tests = 25
+
+    df = pd.read_csv('./Data/BreastCancerClassificationData/breast-cancer-wisconsin.data')
+    df.replace('?', -99999, inplace=True)
+    df.drop(['id'], axis=1, inplace=True)
+
+    x = np.array(df.drop(['class'], 1))
+    y = np.array(df['class'])
+
+    svc = classif.Classification('SVC')
+    # ------------------------------------------------ #
+    # If these lines not commented: Train CLF and Export the trained CLF to file
+    svc_accuracy = []
+    for i in range(run_tests):
+        svc_acc = svc.train(x, y)
+        svc_accuracy.append(svc_acc)
+    svc.io_clf("Data/clf/knn", import_clf=False)  # Change the path to an existing to work
+    # ------------------------------------------------ #
+    # knn.io_clf("Data/clf/knn.clf", import_clf=True)  # Comment lines above and uncomment this (import clf)
+    # ------------------------------------------------ #
+    # linreg_predic = knn.predict()
+    svc_acc = sum(svc_accuracy) / len(svc_accuracy)
+    print("Scikit-Learn Accuracy = %0.3f" % svc_acc)
+
+    # example_measures = np.array([[4, 2, 1, 1, 1, 2, 3, 2, 1], [4, 2, 1, 2, 2, 2, 3, 2, 1]])
+    # example_measures = example_measures.reshape(len(example_measures), -1)
+    # example_prediction = svc.predict(example_measures)
+    # print(example_prediction)
+
+
 # Use scikit-learn algorithms
 # run_regression_example()
-run_classification_example()
+# run_classification_example_knn()
+run_classification_example_SVM_SVC()
 
 # Use my algorithms
 # bfs = recreg.RecRegression()
