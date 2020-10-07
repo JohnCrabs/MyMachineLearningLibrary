@@ -19,7 +19,7 @@ class Classification:
             io_clf.save_clf(path_filename=path, clf=self.clf)
 
     def train(self, x, y):
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4)
         self.clf.fit(x_train, y_train)
         acc = self.clf.score(x_test, y_test)
         return acc

@@ -79,6 +79,8 @@ def run_regression_example():
 
 
 def run_classification_example():
+    run_tests = 25
+
     df = pd.read_csv('./Data/BreastCancerClassificationData/breast-cancer-wisconsin.data')
     df.replace('?', -99999, inplace=True)
     df.drop(['id'], axis=1, inplace=True)
@@ -89,13 +91,18 @@ def run_classification_example():
     knn = classif.Classification('knn')
     # ------------------------------------------------ #
     # If these lines not commented: Train CLF and Export the trained CLF to file
-    knn_acc = knn.train(x, y)
+    knn_accuracy = []
+    for i in range(run_tests):
+        knn_acc = knn.train(x, y)
+        knn_accuracy.append(knn_acc)
     knn.io_clf("Data/clf/knn", import_clf=False)  # Change the path to an existing to work
     # ------------------------------------------------ #
     # knn.io_clf("Data/clf/knn.clf", import_clf=True)  # Comment lines above and uncomment this (import clf)
     # ------------------------------------------------ #
     # linreg_predic = knn.predict()
+    knn_acc = sum(knn_accuracy) / len(knn_accuracy)
     print("Scikit-Learn Accuracy = %0.3f" % knn_acc)
+
     # example_measures = np.array([[4, 2, 1, 1, 1, 2, 3, 2, 1], [4, 2, 1, 2, 2, 2, 3, 2, 1]])
     # example_measures = example_measures.reshape(len(example_measures), -1)
     # example_prediction = knn.predict(example_measures)
@@ -131,10 +138,20 @@ def run_classification_example():
         return train_set, test_set
 
     bfs = recclassif.RecClassification()
-    train_data, test_data = train_test_split(x, y, test_size=0.2)
+    custom_knn_accuracies = []
+    custom_knn_confidences = []
 
-    custom_knn_acc = bfs.knn(train_data, test_data)
+    for i in range(run_tests):
+        train_data, test_data = train_test_split(x, y, test_size=0.4)
+        custom_knn_acc, custom_knn_conf = bfs.knn(train_data)
+        custom_knn_accuracies.append(custom_knn_acc)
+        custom_knn_confidences.append(custom_knn_conf)
+
+    custom_knn_acc = sum(custom_knn_accuracies) / len(custom_knn_accuracies)
+    custom_knn_conf = sum(custom_knn_confidences) / len(custom_knn_confidences)
     print("Custom KNN Accuracy = %0.3f" % custom_knn_acc)
+    print("Custom KNN Confidence = %0.3f" % custom_knn_conf)
+
 
 # Use scikit-learn algorithms
 # run_regression_example()
