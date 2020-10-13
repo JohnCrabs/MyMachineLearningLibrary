@@ -18,6 +18,8 @@ style.use("ggplot")
 
 
 def run_regression_example():
+
+    # ------------------------------------ #
     def df_fill_nan(df_p, predict):
         last_date = df_p.iloc[-1].name
         last_unix_value = last_date.timestamp()
@@ -47,31 +49,23 @@ def run_regression_example():
     df.dropna(inplace=True)
     y = np.array(df['label'])
 
-    linreg = reg.Regression("linear")
+    # ------------------------------------ #
+
+    reg_clf = reg.Regression("LinearRegression")
     # ------------------------------------------------ #
     # If these lines not commented: Train CLF and Export the trained CLF to file
-    linreg_acc = linreg.train(x, y)
-    linreg.io_clf("Data/clf/linreg", import_clf=False)  # Change the path to an existing to work
+    reg_clf_acc = reg_clf.train(x, y)
+    reg_clf.io_clf("Data/clf/reg_clf", import_clf=False)  # Change the path to an existing to work
     # ------------------------------------------------ #
     # linreg.io_clf("Data/clf/linreg.clf", import_clf=True)  # Comment lines above and uncomment this (import clf)
     # ------------------------------------------------ #
-    linreg_predic = linreg.predict(x_lately)
-    print(linreg_predic, "%0.3f" % linreg_acc, forecast_out)
+    linreg_predic = reg_clf.predict(x_lately)
+    print(linreg_predic, "%0.3f" % reg_clf_acc, forecast_out)
     df['Forecast_LinReg'] = np.nan
     df_fill_nan(df, linreg_predic)
 
-    '''
-    svr = reg.Regression("SVR")
-    svr_acc = svr.train(x, y)
-    svr_predic = svr.predict(x_lately)
-    print(svr_predic, "%0.3f" % svr_acc, forecast_out)
-    df['Forecast_SVR'] = np.nan
-    df_fill_nan(df, svr_predic)
-    '''
-
     df['Close'].plot()
     df['Forecast_LinReg'].plot()
-    # df['Forecast_SVR'].plot()
     plt.legend(loc=4)
     plt.xlabel('Date')
     plt.ylabel('Price')
@@ -185,9 +179,9 @@ def run_classification_example_SVM_SVC():
 
 
 # Use scikit-learn algorithms
-# run_regression_example()
+run_regression_example()
 # run_classification_example_knn()
-run_classification_example_SVM_SVC()
+# run_classification_example_SVM_SVC()
 
 # Use my algorithms
 # bfs = recreg.RecRegression()

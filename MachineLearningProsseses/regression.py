@@ -2,19 +2,24 @@ from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.linear_model import LinearRegression
 
+import warnings
 from Utilities import io_clf
+
+dictReg = {"LinearRegression": LinearRegression(fit_intercept=True, normalize=False, copy_X=True, n_jobs=None),
+           "SVM_SVR": svm.SVR(kernel='linear', degree=3, gamma='scale', coef0=0.0, tol=1e-1, C=1.0, shrinking=True,
+                              cache_size=200, verbose=False, max_iter=10)}
 
 
 class Regression:
-    def __init__(self, clf_type="linear"):
-        print("")
-        if clf_type == "linear":
-            self.clf = LinearRegression(n_jobs=-1)
-        elif clf_type == "SVR":
-            self.clf = svm.SVR()
+    def __init__(self, clf_type="LinearRegression"):
+        """
+        :param clf_type: It takes the values - "LinearRegression", SVM_SVR"
+        """
+        if dictReg.get(clf_type) is not None:
+            self.clf = dictReg[clf_type]
         else:
-            print("Error: Uknown Classifier Type method. Classifier set to default: LinearRegression")
-            self.clf = LinearRegression(n_jobs=-1)
+            warnings.warn(clf_type + " isn't an option! Default classifier will be used instead (LinearRegression)!")
+            self.clf = dictReg["LinearRegression"]
 
     def io_clf(self, path, import_clf=False):
         if import_clf:
