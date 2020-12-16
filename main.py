@@ -18,7 +18,6 @@ style.use("ggplot")
 
 
 def run_regression_example():
-
     # ------------------------------------ #
     def df_fill_nan(df_p, predict):
         last_date = df_p.iloc[-1].name
@@ -72,6 +71,59 @@ def run_regression_example():
     plt.show()
 
 
+def run_regression_for_covid():
+    covid_dataset = pd.read_csv('Data/Covid/gihpwb.csv')
+    '''
+    df = [covid_dataset['ID'],
+          covid_dataset['REGION'],
+          covid_dataset['Area_km2'],
+          covid_dataset['NDVI'],
+          covid_dataset['NDVI_StDev'],
+          covid_dataset['NDVI_StDev_km2'],
+          covid_dataset['NDVI_div_km2'],
+          covid_dataset['COVID-19_15Aug2020_Last_10_Days'],
+          covid_dataset['COVID-19_31Aug2020_Last_10_Days'],
+          covid_dataset['COVID-19_15Sep2020_Last_10_Days'],
+          covid_dataset['COVID-19_30Sep2020_Last_10_Days'],
+          covid_dataset['COVID-19_15Oct2020_Last_10_Days'],
+          covid_dataset['COVID-19_30Oct2020_Last_10_Days'],
+          covid_dataset['COVID-19_15Nov2020_Last_14_Days'],
+          covid_dataset['COVID-19_30Nov2020_Last_14_Days']]
+    '''
+
+    # print(covid_dataset.keys())
+    df_NDVI = [covid_dataset['NDVI_StDev_km2'].tolist(), covid_dataset['NDVI_div_km2'].tolist()]
+    # df_NDVI = [covid_dataset['NDVI_StDev_km2'].tolist()]
+    df_Covid = [(covid_dataset['COVID-19_15Aug2020_Last_10_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_31Aug2020_Last_10_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_15Sep2020_Last_10_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_30Sep2020_Last_10_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_15Oct2020_Last_10_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_30Oct2020_Last_10_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_15Nov2020_Last_14_Days']/4.0).tolist(),
+                (covid_dataset['COVID-19_30Nov2020_Last_14_Days']/4.0).tolist()]
+
+    df_x = []
+    df_y = []
+    for i in range(0, 6):
+        list_tmp = [df_NDVI[0], df_NDVI[1], df_Covid[i], df_Covid[i+1]]
+        # list_tmp = [df_NDVI[0], df_Covid[i], df_Covid[i + 1]]
+        df_x.append(list_tmp)
+        df_y.append(df_Covid[i+2])
+
+    df_x = np.array(df_x)
+    df_x = np.concatenate(df_x, axis=1).T
+    df_y = np.concatenate(df_y, axis=0)
+
+    reg_clf = reg.Regression("LinearRegression")
+    # reg_clf = reg.Regression("SVM_SVR")
+    # ------------------------------------------------ #
+    # If these lines not commented: Train CLF and Export the trained CLF to file
+    reg_clf_acc = reg_clf.train(df_x, df_y)
+    # reg_clf.io_clf("Data/clf/reg_covid_clf", import_clf=False)  # Change the path to an existing to work
+    print("LinearRegression_Acc = %0.3f" % reg_clf_acc)
+
+
 def run_classification_example_knn():
     run_tests = 25
 
@@ -116,8 +168,8 @@ def run_classification_example_knn():
         xs = xs.astype(float).tolist()
         ys = ys.astype(float).tolist()
         full_data = xs
-        for i in range(len(full_data)):
-            full_data[i].append(ys[i])
+        for index in range(len(full_data)):
+            full_data[index].append(ys[index])
         random.shuffle(full_data)
 
         train_set = {2: [], 4: []}
@@ -125,10 +177,10 @@ def run_classification_example_knn():
         d_train = full_data[:-int(test_size * len(full_data))]
         d_test = full_data[-int(test_size * len(full_data)):]
 
-        for i in d_train:
-            train_set[i[-1]].append(i[:-1])
-        for i in d_test:
-            test_set[i[-1]].append(i[:-1])
+        for index in d_train:
+            train_set[index[-1]].append(index[:-1])
+        for index in d_test:
+            test_set[index[-1]].append(index[:-1])
         return train_set, test_set
 
     bfs = recclassif.RecClassification()
@@ -179,10 +231,12 @@ def run_classification_example_SVM_SVC():
 
 
 # Use scikit-learn algorithms
-run_regression_example()
+# run_regression_example()
 # run_classification_example_knn()
 # run_classification_example_SVM_SVC()
 
 # Use my algorithms
 # bfs = recreg.RecRegression()
 # bfs.LinearRegression()
+
+run_regression_for_covid()

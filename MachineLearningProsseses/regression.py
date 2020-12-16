@@ -11,10 +11,11 @@ dictReg = {"LinearRegression": LinearRegression(fit_intercept=True, normalize=Fa
 
 
 class Regression:
-    def __init__(self, clf_type="LinearRegression"):
+    def __init__(self, clf_type="LinearRegression", test_size=0.2):
         """
         :param clf_type: It takes the values - "LinearRegression", SVM_SVR"
         """
+        self.test_size = test_size
         if dictReg.get(clf_type) is not None:
             self.clf = dictReg[clf_type]
         else:
@@ -28,7 +29,7 @@ class Regression:
             io_clf.save_clf(path_filename=path, clf=self.clf)
 
     def train(self, x, y):
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=self.test_size)
         self.clf.fit(x_train, y_train)
         acc = self.clf.score(x_test, y_test)
         return acc
