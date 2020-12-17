@@ -15,6 +15,12 @@ class Classification:
             print("Error: Uknown Classifier Type method. Classifier set to default: KNeighborsClassifier")
             self.clf = neighbors.KNeighborsClassifier()
 
+    def ret_clf(self):
+        return self.clf
+
+    def set_clf(self, clf):
+        self.clf = clf
+
     def io_clf(self, path, import_clf=False):
         if import_clf:
             self.clf = io_clf.load_clf(path=path)

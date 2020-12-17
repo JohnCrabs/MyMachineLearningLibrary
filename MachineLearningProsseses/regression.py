@@ -22,6 +22,12 @@ class Regression:
             warnings.warn(clf_type + " isn't an option! Default classifier will be used instead (LinearRegression)!")
             self.clf = dictReg["LinearRegression"]
 
+    def ret_clf(self):
+        return self.clf
+
+    def set_clf(self, clf):
+        self.clf = clf
+
     def io_clf(self, path, import_clf=False):
         if import_clf:
             self.clf = io_clf.load_clf(path=path)

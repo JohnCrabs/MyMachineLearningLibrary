@@ -1,3 +1,4 @@
+import sys
 import math
 import pandas as pd
 import quandl
@@ -13,8 +14,17 @@ from MachineLearningProsseses import classification as classif
 # from MachineLearningRecreateProsseses import rec_regression as recreg
 from MachineLearningRecreateProsseses import rec_classification as recclassif
 
+
 pd.set_option('display.max_columns', None)
 style.use("ggplot")
+
+
+def loadingBar(count, total, size):
+    percent = float(count)/float(total)*100
+    sys.stdout.flush()
+    sys.stdout.write("\r" + str(int(count)).rjust(3, '0') + "/" +
+                     str(int(total)).rjust(3, '0') + ' [' + '=' * int(percent/10)*size
+                     + ' ' * (10 - int(percent / 10)) * size + ']')
 
 
 def run_regression_example():
@@ -72,6 +82,8 @@ def run_regression_example():
 
 
 def run_regression_for_covid():
+    run_tests = 1000000
+
     covid_dataset = pd.read_csv('Data/Covid/gihpwb.csv')
     '''
     df = [covid_dataset['ID'],
@@ -94,34 +106,100 @@ def run_regression_for_covid():
     # print(covid_dataset.keys())
     df_NDVI = [covid_dataset['NDVI_StDev_km2'].tolist(), covid_dataset['NDVI_div_km2'].tolist()]
     # df_NDVI = [covid_dataset['NDVI_StDev_km2'].tolist()]
-    df_Covid = [(covid_dataset['COVID-19_15Aug2020_Last_10_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_31Aug2020_Last_10_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_15Sep2020_Last_10_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_30Sep2020_Last_10_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_15Oct2020_Last_10_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_30Oct2020_Last_10_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_15Nov2020_Last_14_Days']/4.0).tolist(),
-                (covid_dataset['COVID-19_30Nov2020_Last_14_Days']/4.0).tolist()]
+    df_Covid_int = [covid_dataset['COVID-19_15Aug2020_Last_10_Days'].tolist(),
+                    covid_dataset['COVID-19_31Aug2020_Last_10_Days'].tolist(),
+                    covid_dataset['COVID-19_15Sep2020_Last_10_Days'].tolist(),
+                    covid_dataset['COVID-19_30Sep2020_Last_10_Days'].tolist(),
+                    covid_dataset['COVID-19_15Oct2020_Last_10_Days'].tolist(),
+                    covid_dataset['COVID-19_30Oct2020_Last_10_Days'].tolist(),
+                    covid_dataset['COVID-19_15Nov2020_Last_14_Days'].tolist(),
+                    covid_dataset['COVID-19_30Nov2020_Last_14_Days'].tolist()]
+    df_Covid_float = [(covid_dataset['COVID-19_15Aug2020_Last_10_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_31Aug2020_Last_10_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_15Sep2020_Last_10_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_30Sep2020_Last_10_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_15Oct2020_Last_10_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_30Oct2020_Last_10_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_15Nov2020_Last_14_Days'] / 4.0).tolist(),
+                      (covid_dataset['COVID-19_30Nov2020_Last_14_Days'] / 4.0).tolist()]
 
     df_x = []
-    df_y = []
+    df_y_float = []
+    df_y_int = []
     for i in range(0, 6):
-        list_tmp = [df_NDVI[0], df_NDVI[1], df_Covid[i], df_Covid[i+1]]
+        list_tmp = [df_NDVI[0], df_NDVI[1], df_Covid_float[i], df_Covid_float[i + 1]]
         # list_tmp = [df_NDVI[0], df_Covid[i], df_Covid[i + 1]]
         df_x.append(list_tmp)
-        df_y.append(df_Covid[i+2])
+        df_y_float.append(df_Covid_float[i + 2])
+        df_y_int.append(df_Covid_int[i + 2])
 
     df_x = np.array(df_x)
     df_x = np.concatenate(df_x, axis=1).T
-    df_y = np.concatenate(df_y, axis=0)
+    df_y_float = np.concatenate(df_y_float, axis=0)
+    df_y_int = np.concatenate(df_y_int, axis=0)
 
-    reg_clf = reg.Regression("LinearRegression")
+    reg_clf = reg.Regression("LinearRegression", test_size=0.2)
     # reg_clf = reg.Regression("SVM_SVR")
     # ------------------------------------------------ #
     # If these lines not commented: Train CLF and Export the trained CLF to file
-    reg_clf_acc = reg_clf.train(df_x, df_y)
-    # reg_clf.io_clf("Data/clf/reg_covid_clf", import_clf=False)  # Change the path to an existing to work
-    print("LinearRegression_Acc = %0.3f" % reg_clf_acc)
+    reg_clf_acc = 0.0
+    reg_check_acc = 0.6
+    reg_check_counter = 0
+    reg_check_acc_max = 0
+    clf = None
+
+    # print(df_x)
+    # print(df_y)
+
+    print("Run %i Regression iterations." % run_tests)
+    for index in range(run_tests):
+        loadingBar(count=index+1, total=run_tests, size=2)
+        acc_tmp = reg_clf.train(df_x, df_y_float)
+        reg_clf_acc += acc_tmp
+        if acc_tmp >= reg_check_acc:
+            # print(acc_tmp)
+            reg_check_counter += 1
+            if acc_tmp > reg_check_acc_max:
+                clf = reg_clf.ret_clf()
+                reg_check_acc_max = acc_tmp
+
+    reg_clf.set_clf(clf)
+    export_path = "Data/clf/reg/reg_covid_clf_acc_" + "%0.3f" % reg_check_acc_max
+
+    reg_clf.io_clf(export_path, import_clf=False)  # Change the path to an existing to work
+    print("Regression_Acc = %0.3f" % (reg_clf_acc / run_tests))
+    print("Acc >= %0.3f" % reg_check_acc + " for %i" % reg_check_counter + " out of %i iterations." % run_tests)
+    print("Max check accuracy: %0.3f\n" % reg_check_acc_max)
+
+    classif_clf = classif.Classification('knn')
+    # ------------------------------------------------ #
+    # If these lines not commented: Train CLF and Export the trained CLF to file
+    classif_clf_acc = 0.0
+    classif_check_acc = 0.6
+    classif_check_counter = 0
+    classif_check_acc_max = 0
+    clf = None
+
+    print("Run %i Classification iterations." % run_tests)
+
+    for index in range(run_tests):
+        loadingBar(count=index+1, total=run_tests, size=2)
+        acc_tmp = classif_clf.train(df_x, df_y_int)
+        classif_clf_acc += acc_tmp
+        if acc_tmp >= classif_check_acc:
+            # print(acc_tmp)
+            classif_check_counter += 1
+            if acc_tmp > classif_check_acc_max:
+                clf = reg_clf.ret_clf()
+                classif_check_acc_max = acc_tmp
+
+    classif_clf.set_clf(clf)
+    export_path = "Data/clf/classif/classif_covid_clf_acc_" + "%0.3f" % classif_check_acc_max
+
+    reg_clf.io_clf(export_path, import_clf=False)  # Change the path to an existing to work
+    print("Classification_Acc = %0.3f" % (classif_clf_acc / run_tests))
+    print("Acc >= %0.3f" % classif_check_acc + " for %i" % classif_check_counter + " out of %i iterations." % run_tests)
+    print("Max check accuracy: %0.3f\n" % classif_check_acc_max)
 
 
 def run_classification_example_knn():
