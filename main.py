@@ -167,11 +167,12 @@ def run_regression_for_covid():
     export_path = "Data/clf/reg/reg_covid_clf_acc_" + "%0.3f" % reg_check_acc_max
 
     reg_clf.io_clf(export_path, import_clf=False)  # Change the path to an existing to work
+    print("")
     print("Regression_Acc = %0.3f" % (reg_clf_acc / run_tests))
     print("Acc >= %0.3f" % reg_check_acc + " for %i" % reg_check_counter + " out of %i iterations." % run_tests)
     print("Max check accuracy: %0.3f\n" % reg_check_acc_max)
 
-    classif_clf = classif.Classification('knn')
+    classif_clf = classif.Classification('SVC')
     # ------------------------------------------------ #
     # If these lines not commented: Train CLF and Export the trained CLF to file
     classif_clf_acc = 0.0
@@ -197,6 +198,7 @@ def run_regression_for_covid():
     export_path = "Data/clf/classif/classif_covid_clf_acc_" + "%0.3f" % classif_check_acc_max
 
     reg_clf.io_clf(export_path, import_clf=False)  # Change the path to an existing to work
+    print("")
     print("Classification_Acc = %0.3f" % (classif_clf_acc / run_tests))
     print("Acc >= %0.3f" % classif_check_acc + " for %i" % classif_check_counter + " out of %i iterations." % run_tests)
     print("Max check accuracy: %0.3f\n" % classif_check_acc_max)
